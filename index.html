@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1 id="matches"></h1>
+  </body>
+  <script>
+    let server_message = "test";
+    const source = new EventSource("http://localhost:8000/matches");
+    source.addEventListener("message", (e) => {
+      server_message = e.data;
+      console.log("RECEIVED", e.data);
+      document.getElementById("matches").innerHTML = server_message;
+    });
+  </script>
+</html>
