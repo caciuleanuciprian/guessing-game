@@ -40,7 +40,6 @@ client.on("end", () => {
 if (id === null) {
   client.on("data", (data: any) => {
     if (formatData(data) === CMDS.PASSWORD) {
-      console.log(data);
       console.log("Enter the password: ");
       process.stdin.once("data", (data) => {
         sendCommandWithData(client, CMDS.PASSWORD, data.toString().trim());
