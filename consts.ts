@@ -27,6 +27,7 @@ export const enum CMDS {
   MATCH_INFO = "matchInfo",
   BEGIN_MATCH = "beginMatch",
   WIN = "win",
+  STILL_GUESSING = "stillGuessing",
 }
 
 export const sendCommand = (sender: net.Socket, command: string) => {

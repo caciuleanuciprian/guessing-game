@@ -8,13 +8,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "server": "npx nodemon",
-    "client": "npx tsx client.ts"
+    "client": "npx tsx client.ts",
+    "observer": "live-server index.html"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.11.24",
     "@types/ws": "^8.5.10",
+    "live-server": "^1.2.2",
     "nodemon": "^3.1.0",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3"

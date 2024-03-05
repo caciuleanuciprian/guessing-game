@@ -21,11 +21,6 @@ client.on("connect", () => {
   console.log("Connected to server");
 });
 
-// Should be removed
-// client.on("data", (data: any) => {
-//   console.log(data.toString());
-// });
-
 client.on("error", (error: Error) => {
   console.error(`Error: ${error.message}`);
   process.exit(1);
@@ -42,22 +37,21 @@ client.on("end", () => {
 });
 
 // Authentication to server
-client.on("data", (data: any) => {
-  if (formatData(data) === CMDS.PASSWORD) {
-    if (id === null && !currentMatch && !isPlaying) {
-      process.stdin.on("data", (data) => {
+if (id === null) {
+  client.on("data", (data: any) => {
+    if (formatData(data) === CMDS.PASSWORD) {
+      console.log(data);
+      console.log("Enter the password: ");
+      process.stdin.once("data", (data) => {
         sendCommandWithData(client, CMDS.PASSWORD, data.toString().trim());
       });
     }
-  }
-});
+  });
+}
 
 // Get client id
 client.on("data", (data: any) => {
-  console.log("DATA I GET ON CLIENT:", data.toString());
   if (formatDataWithPrefix(data, CMDS.ID)) {
-    console.log(formatData(data));
-    console.log(`CLIENT ID: ${formatDataWithCommand(data, CMDS.ID)}`);
     id = formatDataWithCommand(data, CMDS.ID);
     sendCommand(client, CMDS.MENU);
   }
@@ -65,13 +59,13 @@ client.on("data", (data: any) => {
 
 client.on("data", (data: any) => {
   if (formatData(data) === CMDS.MENU) {
-    console.log("Menu: ");
-    console.log("1. Competitors");
-    console.log("2. Challenge");
+    console.log("MENU: ");
+    console.log("- Show competitors : 'competitors'");
+    console.log("- Challenge a competitor : 'challenge'");
     process.stdin.on("data", (data) => {
-      if (formatData(data) === "1") {
+      if (formatData(data) === CMDS.COMPETITORS) {
         sendCommand(client, CMDS.COMPETITORS);
-      } else if (formatData(data) === "2") {
+      } else if (formatData(data) === CMDS.CHALLENGE) {
         sendCommand(client, CMDS.CHALLENGE);
       }
     });
@@ -80,11 +74,6 @@ client.on("data", (data: any) => {
 
 client.on("data", (data: any) => {
   if (formatDataWithPrefix(data, CMDS.START_GAME)) {
-    if (isPlaying) return;
-    console.log(
-      formatDataWithCommand(data, CMDS.START_GAME).split(" ")[0],
-      formatDataWithCommand(data, CMDS.START_GAME).split(" ")[1]
-    );
     if (isPlaying) return;
     sendCommandWithData(client, CMDS.MATCH, [
       id,
@@ -96,7 +85,6 @@ client.on("data", (data: any) => {
 
 client.on("data", (data: any) => {
   if (formatDataWithPrefix(data, CMDS.MATCH_INFO)) {
-    console.log("ID !!!", formatDataWithCommand(data, CMDS.MATCH_INFO));
     currentMatch = formatDataWithCommand(data, CMDS.MATCH_INFO);
     sendCommandWithData(client, CMDS.BEGIN_MATCH, currentMatch);
     isPlaying = true;
@@ -110,7 +98,8 @@ client.on("data", (data: any) => {
       sendCommand(client, CMDS.MENU);
       return;
     }
-    console.log("You are the challenger. Send a hint.", currentMatch);
+    isPlaying = true;
+    console.log("You are the challenger. Send a hint: ");
     process.stdin.on("data", (data) => {
       sendCommandWithData(client, CMDS.HINT, `${currentMatch} ${data}`);
     });
@@ -124,11 +113,17 @@ client.on("data", (data: any) => {
       sendCommand(client, CMDS.MENU);
       return;
     }
-    console.log("You are the challenged", currentMatch);
-    console.log("\nSend a guess: ");
+    isPlaying = true;
+    console.log("You are guessing. Send a guess: ");
     process.stdin.on("data", (data) => {
       sendCommandWithData(client, CMDS.GUESS, `${currentMatch} ${data}`);
     });
+  }
+});
+
+client.on("data", (data: any) => {
+  if (data.toString().trim() === CMDS.STILL_GUESSING) {
+    console.log("The answer was incorrect. Keep guessing...");
   }
 });
 
@@ -141,9 +136,16 @@ client.on("data", (data: any) => {
 client.on("data", (data: any) => {
   if (formatDataWithPrefix(data, CMDS.CHOOSE_COMPETITOR)) {
     if (isPlaying || currentMatch) return;
-    console.log("Who do you wanna challenge?\n");
+    console.log(
+      "Who do you wanna challenge? Write his id and the word he will try to guess! (ex. 100 apple)\n"
+    );
     process.stdin.on("data", (data) => {
-      sendCommandWithData(client, CMDS.CHOOSE_COMPETITOR, formatData(data));
+      if (data.toString().trim() === CMDS.COMPETITORS) {
+        sendCommand(client, CMDS.COMPETITORS);
+        return;
+      } else {
+        sendCommandWithData(client, CMDS.CHOOSE_COMPETITOR, formatData(data));
+      }
     });
   }
 });
