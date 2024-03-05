@@ -5,16 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
   </head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-weight: 700;
+    }
+    .title {
+      text-align: center;
+      margin-top: 16px;
+    }
+    .vs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .card {
+      border: 1px solid black;
+      padding: 10px;
+      margin: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .card-id {
+      display: flex;
+      width: 100%;
+      font-size: 16px;
+    }
+    .card-content {
+      display: flex;
+      width: 100%;
+      align-items: space-between;
+      justify-content: center;
+      gap: 16px;
+    }
+    .section {
+      padding: 10px;
+      background-color: #ff7f7f;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+    }
+    .section.blue {
+      background-color: #add8e6;
+    }
+    .section.green {
+      background-color: #90ee90;
+    }
+    .section.orange {
+      background-color: #ffd580;
+    }
+    .section.purple {
+      background-color: #cbc3e3;
+    }
+    .card-footer {
+      display: flex;
+      width: 100%;
+      align-items: space-between;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 16px;
+    }
+  </style>
   <body>
-    <h1 id="matches"></h1>
+    <h1 class="title">Matches</h1>
+    <div id="matches"></div>
   </body>
   <script>
-    let server_message = "test";
     const source = new EventSource("http://localhost:8000/matches");
     source.addEventListener("message", (e) => {
-      server_message = e.data;
       console.log("RECEIVED", e.data);
+      const newSubStr = e.data.substring(
+        e.data.indexOf("["),
+        e.data.indexOf("]") + 1
+      );
+      console.log(typeof JSON.parse(newSubStr));
+      document.getElementById("matches").innerHTML = JSON.parse(newSubStr).map(
+        (match) => {
+          return `<div class="card">
+            <p class="card-id">Match ID: ${match.id}</p>
+            <div class="card-content">
+              <div class="section">
+                <p>Challenger ID: ${match.challenger}</p>
+              </div>
+              <div class="vs">
+                <p>VS</p>
+              </div>
+              <div class="section blue">
+                <p>Challenged ID: ${match.challenged}</p>
+              </div>
+            </div>
+            <div class="card-footer">
+              <div class="section green">
+                <p>Word to guess: ${match.word}</p>
+              </div>
+              <div class="section orange">
+                <p>Attempts: ${match.attempts}</p>
+              </div>
+              <div class="section purple">
+                <p>Match Status: ${match.status}</p>
+              </div>
+            </div>
+            
+            </div>`;
+        }
+      );
     });
-    document.getElementById("matches").innerHTML = server_message;
   </script>
 </html>
