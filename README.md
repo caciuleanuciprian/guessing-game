@@ -4,7 +4,7 @@ Repository for Guessing game with TCP Server, sockets clients and server sent ev
 
 ## Project description
 
-Project made mainly with **node.js - net (core library for TCP Server/Sockets)**.
+Project made mainly with **Node** (version ^20), more specifically with **net** (core library of Node for TCP Server/Sockets).
 
 The project is structured in 3 big components: _server.ts_, _client.ts_ and _index.html_.
 
